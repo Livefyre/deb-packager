@@ -12,8 +12,15 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class RepreproBuilder extends Builder {
 
+    private final String distribution;
+
     @DataBoundConstructor
-    public RepreproBuilder() {
+    public RepreproBuilder(String distribution) {
+      this.distribution = distribution;
+    }
+
+    public String getDistribution() {
+      return distribution;
     }
 
     @Override
@@ -24,7 +31,7 @@ public class RepreproBuilder extends Builder {
             retval = launcher
                     .launch()
                     .cmds(new String[] { "reprepro", "--keepunreferencedfiles", "-Vb",
-                            "/var/lib/reprepro", "includedeb", "precise", ".packaged.deb" })
+                            "/var/lib/reprepro", "includedeb", distribution, ".packaged.deb" })
                     .envs(build.getEnvironment(listener)).stdout(listener)
                     .pwd(build.getWorkspace()).join();
         } catch (Exception e) {
