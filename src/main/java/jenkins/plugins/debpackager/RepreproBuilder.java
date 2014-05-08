@@ -37,7 +37,7 @@ public class RepreproBuilder extends Builder {
             retval = launcher
                     .launch()
                     .cmds(new String[] { "reprepro", "--keepunreferencedfiles", "-Vb",
-                            "/var/lib/reprepro", "includedeb", "--component", component, distribution, ".packaged.deb" })
+                            "/var/lib/reprepro", "--component", component, "includedeb", distribution, ".packaged.deb" })
                     .envs(build.getEnvironment(listener)).stdout(listener)
                     .pwd(build.getWorkspace()).join();
         } catch (Exception e) {
