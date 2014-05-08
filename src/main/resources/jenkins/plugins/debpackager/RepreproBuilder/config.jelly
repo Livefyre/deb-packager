@@ -3,4 +3,7 @@
     <f:textbox />
   </f:entry>
 
+  <f:entry title="Component" field="component">
+    <f:textbox />
+  </f:entry>
 </j:jelly>
