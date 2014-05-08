@@ -6,6 +6,7 @@ import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
+import hudson.model.ParametersAction;
 import hudson.tasks.Builder;
 
 import org.kohsuke.stapler.DataBoundConstructor;
