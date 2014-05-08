@@ -32,12 +32,14 @@ public class RepreproBuilder extends Builder {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         int retval = -1;
+        String distributionSub = getParameterString(distribution, build, listener);
+        String componentSub = getParameterString(component, build, listener);
         listener.getLogger().println("Deb Packager - adding package to reprepro...");
         try {
             retval = launcher
                     .launch()
                     .cmds(new String[] { "reprepro", "--keepunreferencedfiles", "-Vb",
-                            "/var/lib/reprepro", "--component", component, "includedeb", distribution, ".packaged.deb" })
+                            "/var/lib/reprepro", "--component", componentSub, "includedeb", distributionSub, ".packaged.deb" })
                     .envs(build.getEnvironment(listener)).stdout(listener)
                     .pwd(build.getWorkspace()).join();
         } catch (Exception e) {
@@ -64,4 +66,20 @@ public class RepreproBuilder extends Builder {
             return "Deb Packager - Reprepro";
         }
     }
+
+    private String getParameterString(String original, AbstractBuild<?, ?> build,
+            BuildListener listener) {
+        ParametersAction parameters = build.getAction(ParametersAction.class);
+        if (parameters != null) {
+            original = parameters.substitute(build, original);
+        }
+
+        try {
+            original = Util.replaceMacro(original, build.getEnvironment(listener));
+        } catch (Exception e) {
+        }
+
+        return original;
+    }
+
 }
