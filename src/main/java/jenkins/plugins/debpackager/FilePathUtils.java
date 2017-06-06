@@ -65,7 +65,7 @@ public class FilePathUtils {
     }
 
     public static int copyRecursiveWithPermissions(FilePath source, String includes,
-            String excludes, FilePath target, BuildListener listener) throws IOException,
+                                                   String excludes, FilePath target, final BuildListener listener) throws IOException,
             InterruptedException {
         FilePath[] files = source.list(includes, excludes);
         listener.getLogger().println("Preparing to copy " + files.length + " file(s)");
@@ -90,6 +90,9 @@ public class FilePathUtils {
             file.act(new FileCallable<Void>() {
                 @Override
                 public Void invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+                    listener.getLogger().println(f.getAbsolutePath());
+                    listener.getLogger().println(srcPathSubStr);
+                    listener.getLogger().println(destPath);
                     Files.createDirectories(Paths.get(destPath, srcPathSubStr).getParent());
                     Files.copy(Paths.get(f.getAbsolutePath()), Paths.get(destPath), COPY_ATTRIBUTES, REPLACE_EXISTING);
                     return null;
