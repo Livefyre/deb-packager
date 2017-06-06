@@ -7,6 +7,11 @@ import hudson.remoting.VirtualChannel;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class FilePathUtils {
 
@@ -68,24 +73,26 @@ public class FilePathUtils {
         for (FilePath file : files) {
             int i = 0;
             while (i < file.getRemote().length() && i < source.getRemote().length()
-                    && file.getRemote().charAt(i) == source.getRemote().charAt(i)) {
+                    && file.getRemote().charAt(i  ) == source.getRemote().charAt(i)) {
                 i++;
             }
 
             listener.getLogger().println(
                     "Copying " + source.getRemote() + " : " + file.getRemote().substring(i)
                             + " -> " + target.getRemote());
-            try {
-                String dest = file.getRemote().substring(i);
-                if (dest.startsWith("/")) {
-                    dest = dest.substring(1);
-                }
-
-                file.copyToWithPermission(target.child(dest));
-            } catch (IOException e) {
-                e.printStackTrace(listener.getLogger());
-                listener.getLogger().println("Continuing with the other files");
+            String dest = file.getRemote().substring(i);
+            if (dest.startsWith("/")) {
+                dest = dest.substring(1);
             }
+
+            final String destPath = target.child(dest).getRemote();
+            file.act(new FileCallable<Void>() {
+                @Override
+                public Void invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+                    Files.copy(Paths.get(f.getAbsolutePath()), Paths.get(destPath), COPY_ATTRIBUTES, REPLACE_EXISTING);
+                    return null;
+                }
+            });
         }
         return 0;
     }
