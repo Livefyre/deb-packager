@@ -85,12 +85,12 @@ public class FilePathUtils {
                 dest = dest.substring(1);
             }
 
-            final String destPath = target.child(dest).getParent().getRemote();
+            final String destPath = target.child(dest).getRemote();
             file.act(new FileCallable<Void>() {
                 @Override
                 public Void invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
                     listener.getLogger().println(destPath);
-                    Files.createDirectories(Paths.get(destPath));
+                    Files.createDirectories(Paths.get(destPath).getParent());
                     Files.copy(Paths.get(f.getAbsolutePath()), Paths.get(destPath), COPY_ATTRIBUTES, REPLACE_EXISTING);
                     return null;
                 }
