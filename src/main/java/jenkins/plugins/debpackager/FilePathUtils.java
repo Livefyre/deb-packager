@@ -7,6 +7,11 @@ import hudson.remoting.VirtualChannel;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class FilePathUtils {
 
@@ -60,8 +65,7 @@ public class FilePathUtils {
     }
 
     public static int copyRecursiveWithPermissions(FilePath source, String includes,
-            String excludes, FilePath target, BuildListener listener) throws IOException,
-            InterruptedException {
+                                                   String excludes, FilePath target, final BuildListener listener) throws IOException, InterruptedException {
         FilePath[] files = source.list(includes, excludes);
         listener.getLogger().println("Preparing to copy " + files.length + " file(s)");
 
@@ -75,17 +79,20 @@ public class FilePathUtils {
             listener.getLogger().println(
                     "Copying " + source.getRemote() + " : " + file.getRemote().substring(i)
                             + " -> " + target.getRemote());
-            try {
-                String dest = file.getRemote().substring(i);
-                if (dest.startsWith("/")) {
-                    dest = dest.substring(1);
-                }
-
-                file.copyToWithPermission(target.child(dest));
-            } catch (IOException e) {
-                e.printStackTrace(listener.getLogger());
-                listener.getLogger().println("Continuing with the other files");
+            String dest = file.getRemote().substring(i);
+            if (dest.startsWith("/")) {
+                dest = dest.substring(1);
             }
+
+            final String destPath = target.child(dest).getRemote();
+            file.act(new FileCallable<Void>() {
+                @Override
+                public Void invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+                    Files.createDirectories(Paths.get(destPath).getParent());
+                    Files.copy(Paths.get(f.getAbsolutePath()), Paths.get(destPath), COPY_ATTRIBUTES, REPLACE_EXISTING);
+                    return null;
+                }
+            });
         }
         return 0;
     }
