@@ -89,7 +89,6 @@ public class FilePathUtils {
             file.act(new FileCallable<Void>() {
                 @Override
                 public Void invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
-                    listener.getLogger().println(destPath);
                     Files.createDirectories(Paths.get(destPath).getParent());
                     Files.copy(Paths.get(f.getAbsolutePath()), Paths.get(destPath), COPY_ATTRIBUTES, REPLACE_EXISTING);
                     return null;
